@@ -6,13 +6,23 @@ import java.lang.RuntimeException
 
 private typealias Handler = Int
 
+/**
+ * 里程计数据
+ */
 data class Odometry(
     val s: Double, val sa: Double,
     val x: Double, val y: Double, val theta: Double,
     val vx: Double, val vy: Double, val w: Double
 )
 
+/**
+ * 驱动函数
+ */
 object PM1 {
+    /**
+     * 初始化
+     * @param port 串口名字
+     */
     @JvmStatic
     fun initialize(port: String = ""): String {
         native.clear_error_info()
@@ -21,15 +31,24 @@ object PM1 {
         return native.get_current_port()
     }
 
+    /**
+     * 关闭
+     */
     @JvmStatic
     fun shutdown() =
         onNative(native.shutdown())
 
+    /**
+     * 关闭时不会引发异常
+     */
     @JvmStatic
     fun safeShutdown() {
         native.shutdown()
     }
 
+    /**
+     * 获取里程计数据
+     */
     val odometry: Odometry
         @JvmStatic
         get() {
@@ -51,10 +70,16 @@ object PM1 {
                             vx.value, vy.value, w.value)
         }
 
+    /**
+     * 清零里程计
+     */
     @JvmStatic
     fun resetOdometry() =
         onNative(native.reset_odometry())
 
+    /**
+     * 查看使能状态
+     */
     var locked: Boolean
         @JvmStatic
         get() {
@@ -69,6 +94,11 @@ object PM1 {
             onNative(native.set_enabled(!value))
         }
 
+    /**
+     * 控制机器人行驶
+     * @param v 线速度
+     * @param w 角速度
+     */
     @JvmStatic
     fun drive(v: Double, w: Double) {
         onNative(native.drive_velocity(v, w))

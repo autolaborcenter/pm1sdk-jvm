@@ -1,5 +1,4 @@
 plugins {
-    java
     kotlin("jvm") version "1.3.40"
 }
 
@@ -11,7 +10,17 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
+    implementation(kotlin("stdlib-jdk8"))
     implementation("net.java.dev.jna", "jna", "+")
-    testCompile("junit", "junit", "+")
+    testImplementation(kotlin("test"))
+    testImplementation(kotlin("test-junit"))
 }
+
+tasks
+    .withType(Jar::class)
+    .first()
+    .exclude {
+        "linux_x64" in it.path
+        || "win_x64" in it.path
+        || "win_x86" in it.path
+    }
