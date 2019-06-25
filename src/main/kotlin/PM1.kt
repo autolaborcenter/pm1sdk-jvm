@@ -85,13 +85,14 @@ object PM1 {
     private val native by lazy {
         val os = System.getProperty("os.name").toLowerCase()
         val x64 = "64" in System.getProperty("os.arch")
-        if ("win" in os)
-            if (x64)
-                Native.load("win_x64/pm1_sdk_native", NativeFunctions::class.java)
-            else
-                Native.load("win_x86/pm1_sdk_native", NativeFunctions::class.java)
-        else
-            throw RuntimeException("unsupported platform")
+        val path =
+            when {
+                "win" in os && x64   -> "win_x64/"
+                "win" in os          -> "win_x86/"
+                "linux" in os && x64 -> "linux_x64/lib"
+                else                 -> throw RuntimeException("unsupported platform")
+            }
+        Native.load("${path}pm1_sdk_native", NativeFunctions::class.java)
     }
 
     @Suppress("FunctionName")
