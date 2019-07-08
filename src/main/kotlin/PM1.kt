@@ -42,8 +42,11 @@ object PM1 {
      * 关闭时不会引发异常
      */
     @JvmStatic
-    fun safeShutdown() {
-        native.shutdown()
+    fun safeShutdown(): String {
+        val handler = native.shutdown()
+        val error = native.get_error_info(handler)
+        native.remove_error_info(handler)
+        return error
     }
 
     /**
