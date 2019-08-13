@@ -2,7 +2,6 @@ import com.sun.jna.Library
 import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.ptr.DoubleByReference
-import java.lang.RuntimeException
 
 private typealias Handler = Int
 
@@ -11,8 +10,7 @@ private typealias Handler = Int
  */
 data class Odometry(
     val s: Double, val sa: Double,
-    val x: Double, val y: Double, val theta: Double,
-    val vx: Double, val vy: Double, val w: Double
+    val x: Double, val y: Double, val theta: Double
 )
 
 /**
@@ -45,7 +43,7 @@ object PM1 {
     fun safeShutdown(): String {
         val handler = native.shutdown()
         val error = native.get_error_info(handler)
-        native.remove_error_info(handler)
+        native.clear_error_info()
         return error
     }
 
@@ -55,22 +53,19 @@ object PM1 {
     val odometry: Odometry
         @JvmStatic
         get() {
+            val stamp = DoubleByReference()
             val s = DoubleByReference()
             val sa = DoubleByReference()
             val x = DoubleByReference()
             val y = DoubleByReference()
             val theta = DoubleByReference()
-            val vx = DoubleByReference()
-            val vy = DoubleByReference()
-            val w = DoubleByReference()
             onNative(native.get_odometry_c(
+                stamp.pointer,
                 s.pointer, sa.pointer,
-                x.pointer, y.pointer, theta.pointer,
-                vx.pointer, vy.pointer, w.pointer
+                x.pointer, y.pointer, theta.pointer
             ))
             return Odometry(s.value, sa.value,
-                            x.value, y.value, theta.value,
-                            vx.value, vy.value, w.value)
+                            x.value, y.value, theta.value)
         }
 
     /**
@@ -96,6 +91,12 @@ object PM1 {
         set(value) {
             onNative(native.set_enabled(!value))
         }
+
+    /**
+     * 设置控制使能
+     */
+    fun setCommandEnabled(value: Boolean) =
+        onNative(native.set_command_enabled(value))
 
     /**
      * 控制机器人行驶
@@ -150,11 +151,15 @@ object PM1 {
 
         fun reset_parameter(id: Handler): Handler
 
-        fun get_odometry_c(s: Pointer, sa: Pointer,
-                           x: Pointer, y: Pointer, theta: Pointer,
-                           vx: Pointer, vy: Pointer, w: Pointer): Handler
+        fun get_rudder_c(value: Pointer): Handler
+
+        fun get_odometry_c(stamp: Pointer,
+                           s: Pointer, sa: Pointer,
+                           x: Pointer, y: Pointer, theta: Pointer): Handler
 
         fun reset_odometry(): Handler
+
+        fun set_command_enabled(value: Boolean): Handler
 
         fun set_enabled(value: Boolean): Handler
 
