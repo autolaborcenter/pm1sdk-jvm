@@ -1,3 +1,5 @@
+package cn.autolabor.pm1.sdk
+
 fun main() {
     try {
         println("connected: ${PM1.initialize()}")

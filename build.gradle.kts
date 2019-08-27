@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.3.40"
+    kotlin("jvm") version "1.3.50"
 }
 
 group = "cn.autolabor"
@@ -11,7 +11,8 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("net.java.dev.jna", "jna", "+")
+    api("net.java.dev.jna", "jna", "+")
+
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit"))
 }

@@ -1,3 +1,5 @@
+package cn.autolabor.pm1.sdk
+
 import com.sun.jna.Library
 import com.sun.jna.Native
 import com.sun.jna.Pointer
@@ -9,6 +11,7 @@ private typealias Handler = Int
  * 里程计数据
  */
 data class Odometry(
+    val stamp: Long,
     val s: Double, val sa: Double,
     val x: Double, val y: Double, val theta: Double
 )
@@ -64,7 +67,8 @@ object PM1 {
                 s.pointer, sa.pointer,
                 x.pointer, y.pointer, theta.pointer
             ))
-            return Odometry(s.value, sa.value,
+            return Odometry((stamp.value * 1000).toLong(),
+                            s.value, sa.value,
                             x.value, y.value, theta.value)
         }
 
@@ -108,6 +112,17 @@ object PM1 {
         onNative(native.drive_velocity(v, w))
     }
 
+    /**
+     * 控制机器人行驶
+     * @param v 线速度
+     * @param w 角速度
+     */
+    @JvmStatic
+    fun driveSpatial(v: Double, w: Double, spatium: Double, angle: Double) {
+        val ignore = DoubleByReference()
+        onNative(native.drive_spatial_c(v, w, spatium, angle, ignore.pointer))
+    }
+
     private fun onNative(handler: Handler) {
         val error = native.get_error_info(handler)
         if (error.isNotBlank()) {
@@ -126,7 +141,7 @@ object PM1 {
                 "linux" in os && x64 -> "linux_x64/lib"
                 else                 -> throw RuntimeException("unsupported platform")
             }
-        Native.load("${path}pm1_sdk_native", NativeFunctions::class.java)
+        Native.load("${path}pm1_sdk_native", PM1.NativeFunctions::class.java)
     }
 
     @Suppress("FunctionName")
@@ -166,5 +181,11 @@ object PM1 {
         fun check_state(): Byte
 
         fun drive_velocity(v: Double, w: Double): Handler
+
+        fun drive_spatial_c(v: Double,
+                            w: Double,
+                            spatium: Double,
+                            angle: Double,
+                            progress: Pointer): Handler
     }
 }

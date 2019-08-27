@@ -1,3 +1,5 @@
+package cn.autolabor.pm1.sdk;
+
 public class Main {
     public static void main(String[] args) {
         try {
