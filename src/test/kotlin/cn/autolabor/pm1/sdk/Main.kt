@@ -7,7 +7,7 @@ fun main() {
         val time = System.currentTimeMillis()
         while (System.currentTimeMillis() - time < 5000) {
             PM1.drive(1.0, 0.0)
-            println(PM1.odometry.x)
+            println(PM1.odometry.first)
         }
     } catch (e: Exception) {
         println(e.message)

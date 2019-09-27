@@ -9,7 +9,7 @@ public class Main {
             long time = System.currentTimeMillis();
             while (System.currentTimeMillis() - time < 5000) {
                 PM1.drive(1.0, 0.0);
-                System.out.println(PM1.getOdometry().getX());
+                System.out.println(PM1.getOdometry().getFirst());
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());

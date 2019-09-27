@@ -8,18 +8,18 @@ import com.sun.jna.ptr.DoubleByReference
 private typealias Handler = Int
 
 /**
- * 里程计数据
- */
-data class Odometry(
-    val stamp: Long,
-    val s: Double, val sa: Double,
-    val x: Double, val y: Double, val theta: Double
-)
-
-/**
  * 驱动函数
  */
 object PM1 {
+    enum class ParameterId {
+        Width,
+        Length,
+        LeftRadius,
+        RightRadius;
+
+        val id get() = values().indexOf(this)
+    }
+
     /**
      * 初始化
      * @param port 串口名字
@@ -40,6 +40,29 @@ object PM1 {
         onNative(native.shutdown())
 
     /**
+     * 获取参数
+     */
+    operator fun get(id: ParameterId): Double {
+        val ptr = DoubleByReference()
+        onNative(native.get_parameter_c(id.id, ptr.pointer))
+        return ptr.value
+    }
+
+    /**
+     * 设置参数
+     */
+    operator fun set(id: ParameterId, value: Double) {
+        onNative(native.set_parameter(id.id, value))
+    }
+
+    /**
+     * 重置参数
+     */
+    fun reset(id: ParameterId) {
+        onNative(native.reset_parameter(id.id))
+    }
+
+    /**
      * 关闭时不会引发异常
      */
     @JvmStatic
@@ -53,7 +76,7 @@ object PM1 {
     /**
      * 获取里程计数据
      */
-    val odometry: Odometry
+    val odometry: Triple<Double, Double, Double>
         @JvmStatic
         get() {
             val stamp = DoubleByReference()
@@ -67,9 +90,7 @@ object PM1 {
                 s.pointer, sa.pointer,
                 x.pointer, y.pointer, theta.pointer
             ))
-            return Odometry((stamp.value * 1000).toLong(),
-                            s.value, sa.value,
-                            x.value, y.value, theta.value)
+            return Triple(x.value, y.value, theta.value)
         }
 
     /**
