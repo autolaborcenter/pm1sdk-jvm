@@ -29,7 +29,7 @@ object PM1 {
         native.clear_error_info()
         val ignore = DoubleByReference()
         onNative(native.initialize_c(port, ignore.pointer))
-        return native.get_current_port()
+        return native.get_connected_port()
     }
 
     /**
@@ -173,7 +173,7 @@ object PM1 {
 
         fun clear_error_info()
 
-        fun get_current_port(): String
+        fun get_connected_port(): String
 
         fun initialize_c(port: String, progress: Pointer): Handler
 
