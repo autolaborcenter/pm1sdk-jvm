@@ -153,16 +153,20 @@ object PM1 {
     }
 
     private val native by lazy {
-        val os = System.getProperty("os.name").toLowerCase()
-        val x64 = "64" in System.getProperty("os.arch")
-        val path =
-            when {
-                "win" in os && x64   -> "win_x64/"
-                "win" in os          -> "win_x86/"
-                "linux" in os && x64 -> "linux_x64/lib"
-                else                 -> throw RuntimeException("unsupported platform")
-            }
-        Native.load("${path}pm1_sdk_native", PM1.NativeFunctions::class.java)
+        try {
+            Native.load("pm1_sdk_native", NativeFunctions::class.java)
+        } catch (e: UnsatisfiedLinkError) {
+            val os = System.getProperty("os.name").toLowerCase()
+            val x64 = "64" in System.getProperty("os.arch")
+            val path =
+                when {
+                    "win" in os && x64   -> "win_x64/"
+                    "win" in os          -> "win_x86/"
+                    "linux" in os && x64 -> "linux_x64/lib"
+                    else                 -> throw RuntimeException("unsupported platform")
+                }
+            Native.load("${path}pm1_sdk_native", NativeFunctions::class.java)
+        }
     }
 
     @Suppress("FunctionName")

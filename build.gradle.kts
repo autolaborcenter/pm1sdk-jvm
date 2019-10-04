@@ -19,9 +19,4 @@ dependencies {
 
 tasks
     .withType(Jar::class)
-    .first()
-    .exclude {
-        "linux_x64" in it.path
-        || "win_x64" in it.path
-        || "win_x86" in it.path
-    }
+    .forEach { task -> task.exclude { "win" in it.path || "linux" in it.path } }
